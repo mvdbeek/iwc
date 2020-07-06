@@ -27,5 +27,5 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
     - name: Setup cmvfs
-      run: ./scripts/setup_cvmfs.sh
+      run: ./.scripts/setup_cvmfs.sh
 
