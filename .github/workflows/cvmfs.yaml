@@ -1,0 +1,31 @@
+name: Galaxy Tool Linting and Tests for push and PR
+on: [push, pull_request]
+env:
+  GALAXY_REPO: https://github.com/galaxyproject/galaxy
+  GALAXY_RELEASE: release_20.05
+jobs:
+  setup:
+    name: Setup cache and determine changed repositories
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.7]
+    steps:
+    - name: Print github context properties
+      run: |
+        echo 'event: ${{ github.event_name }}'
+        echo 'sha: ${{ github.sha }}'
+        echo 'ref: ${{ github.ref }}'
+        echo 'head_ref: ${{ github.head_ref }}'
+        echo 'base_ref: ${{ github.base_ref }}'
+        echo 'event.before: ${{ github.event.before }}'
+        echo 'event.after: ${{ github.event.after }}'
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 1
+    - uses: actions/setup-python@v1
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Setup cmvfs
+      run: ./scripts/setup_cvmfs.sh
+
