@@ -13,5 +13,5 @@ sudo cvmfs_config setup
 sudo cp default.local  /etc/cvmfs/default.local
 sudo cp galaxyproject.org.conf  /etc/cvmfs/domain.d/galaxyproject.org.conf
 sudo cp ./*.galaxyproject.org.pub /etc/cvmfs/keys/
-mkdir /cvmfs/main.galaxyproject.org
+sudo mkdir /cvmfs/main.galaxyproject.org
 sudo mount -t cvmfs main.galaxyproject.org /cvmfs/main.galaxyproject.org
