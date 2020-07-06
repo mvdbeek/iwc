@@ -28,4 +28,5 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Setup cmvfs
       run: ./.scripts/setup_cvmfs.sh
-
+    - name: Setup tmate session
+      uses: mxschmitt/action-tmate@v2
