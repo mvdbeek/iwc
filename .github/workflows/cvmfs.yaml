@@ -30,6 +30,7 @@ jobs:
       run: ./.scripts/setup_cvmfs.sh
     - run: pip install https://github.com/galaxyproject/planemo/archive/master.zip
     - run: sed "s|/cvmfs/main.galaxyproject.org/shed_tools|$HOME/cvmfs/shed_tools|g" ~/cvmfs/config/shed_tool_conf.xml > shed_tool_conf.xml
-    - run: planemo test --no_cache_galaxy --no_conda_auto_install --no_cleanup --biocontainers --shed_tool_conf ~/shed_tool_conf.xml --no_shed_install workflows/sars-cov-2-variant-calling/workflow.ga
     - name: Setup tmate session
       uses: mxschmitt/action-tmate@v2
+    - run: planemo test --no_cache_galaxy --no_conda_auto_install --no_cleanup --biocontainers --shed_tool_conf shed_tool_conf.xml --no_shed_install workflows/sars-cov-2-variant-calling/workflow.ga
+
