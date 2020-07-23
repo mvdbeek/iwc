@@ -41,10 +41,16 @@ jobs:
       with:
         path: ~/.cache/pip
         key: pip_cache_${{ matrix.python-version }}_${{ env.GALAXY_RELEASE }}
+    - name: Cache tool_cache
+      uses: actions/cache@v2
+      id: cache-tool-cache
+      with:
+        path: ~/tool_cache
+        key: tool_cache_${{ env.GALAXY_RELEASE }}
     - name: Setup cmvfs
       run: ./.scripts/setup_cvmfs.sh
     - run: pip install https://github.com/galaxyproject/planemo/archive/master.zip
-    - run: sed "s|/cvmfs/main.galaxyproject.org/shed_tools|$HOME/cvmfs/shed_tools|g" ~/cvmfs/config/shed_tool_conf.xml > ~/shed_tool_conf.xml
+    - run: sed "s|/cvmfs/main.galaxyproject.org/shed_tools|$HOME/cvmfs/shed_tools\" tool_cache_data_dir=\"$HOME/tool_cache|g" ~/cvmfs/config/shed_tool_conf.xml > ~/shed_tool_conf.xml
     - run: planemo test --database_connection postgresql://postgres:postgres@localhost:5432/galaxy --no_conda_auto_init --no_dependency_resolution --biocontainers --shed_tool_conf ~/shed_tool_conf.xml --no_shed_install workflows/sars-cov-2-variant-calling/workflow.ga || true
     - name: Copy artifacts into place
       run: |
