@@ -28,5 +28,7 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Setup cmvfs
       run: ./.scripts/setup_cvmfs.sh
+    - run: pip install planemo
+    - run: sed "s|/cvmfs/main.galaxyproject.org/shed_tools|$HOME/main.galaxyproject.org/shed_tools|g" ~/cvmfs/main.galaxyproject.org/config/shed_tool_conf.xml > shed_tool_conf.xml
     - name: Setup tmate session
       uses: mxschmitt/action-tmate@v2
