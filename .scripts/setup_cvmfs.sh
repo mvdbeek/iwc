@@ -18,7 +18,3 @@ mkdir -p /home/runner/cvmfs/data
 mkdir -p /home/runner/cvmfs/main
 sudo mount -t cvmfs main.galaxyproject.org /home/runner/cvmfs/main
 sudo mount -t cvmfs data.galaxyproject.org /home/runner/cvmfs/data
-
-sudo mkdir /cvmfs
-sudo ln -s /home/runner/cvmfs/main /cvmfs/main.galaxyproject.org
-sudo ln -s /home/runner/cvmfs/data /cvmfs/data.galaxyproject.org
