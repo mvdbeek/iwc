@@ -1,8 +1,8 @@
-name: Galaxy Tool Linting and Tests for push and PR
+name: Galaxy Workflow Tests for push and PR
 on: [push, pull_request]
 env:
   GALAXY_REPO: https://github.com/galaxyproject/galaxy
-  GALAXY_RELEASE: release_20.05
+  GALAXY_RELEASE: release_20.09
 jobs:
   setup:
     name: Setup cache and determine changed repositories
@@ -10,6 +10,8 @@ jobs:
     strategy:
       matrix:
         python-version: [3.7]
+        workflow:
+          - ~/cvmfs/data workflows/sars-cov-2-variant-calling/workflow.ga
     services:
       postgres:
         image: postgres:11
@@ -53,7 +55,7 @@ jobs:
     - run: sed "s|/cvmfs/main.galaxyproject.org/shed_tools|$HOME/cvmfs/main/shed_tools\" tool_cache_data_dir=\"$HOME/tool_cache|g" ~/cvmfs/main/config/shed_tool_conf.xml > ~/shed_tool_conf.xml
     - run: sed "s|/cvmfs/data.galaxyproject.org|$HOME/cvmfs/data|g" ~/cvmfs/data/managed/location/tool_data_table_conf.xml > ~/tool_data_table_conf_managed.xml
     - run: sed "s|/cvmfs/data.galaxyproject.org|$HOME/cvmfs/data|g" ~/cvmfs/data/byhand/location/tool_data_table_conf.xml > ~/tool_data_table_conf_by_hand.xml
-    - run: planemo test --database_connection postgresql://postgres:postgres@localhost:5432/galaxy --no_conda_auto_init --no_dependency_resolution --biocontainers --shed_tool_conf ~/shed_tool_conf.xml --no_shed_install --tool_data_table ~/tool_data_table_conf_by_hand.xml --tool_data_table ~/tool_data_table_conf_managed.xml --docker_extra_volume ~/cvmfs/data workflows/sars-cov-2-variant-calling/workflow.ga || true
+    - run: planemo test --database_connection postgresql://postgres:postgres@localhost:5432/galaxy --no_conda_auto_init --no_dependency_resolution --biocontainers --shed_tool_conf ~/shed_tool_conf.xml --no_shed_install --tool_data_table ~/tool_data_table_conf_by_hand.xml --tool_data_table ~/tool_data_table_conf_managed.xml --docker_extra_volume ~/cvmfs/data ${{ matrix.workflow }}
     - name: Copy artifacts into place
       run: |
         mkdir upload
