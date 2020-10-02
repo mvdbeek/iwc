@@ -1,4 +1,6 @@
 version: 1.2
 workflows:
-- primaryDescriptorPath: workflow.ga
+- primaryDescriptorPath: ./workflows/sars-cov-2-variant-calling/workflow.ga
   subclass: Galaxy
+  testParameterFiles:
+  - ./workflows/sars-cov-2-variant-calling/workflow-test.yml
