@@ -4,8 +4,8 @@ env:
   GALAXY_REPO: https://github.com/galaxyproject/galaxy
   GALAXY_RELEASE: release_20.09
 jobs:
-  setup:
-    name: Setup cache and determine changed repositories
+  test:
+    name: Setup cache, determine changed workflows and test these workflows
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -70,3 +70,21 @@ jobs:
             echo "Unsuccessful tests found, inspect the 'Workflow test report' artifact for details."
             exit 1
         fi
+  # deploy workflows to organization
+  deploy:
+    name: Deploy
+    needs: [test]
+    strategy:
+      matrix:
+        python-version: [3.7]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master' && github.repository_owner == 'galaxyproject'
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 1
+    - uses: actions/setup-python@v1
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install planemo
+      run: pip install https://github.com/mvdbeek/planemo/archive/ci_find_workflows.zip
