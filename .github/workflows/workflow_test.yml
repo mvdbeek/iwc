@@ -82,6 +82,6 @@ jobs:
     - name: Install planemo
       run: pip install https://github.com/mvdbeek/planemo/archive/ci_find_workflows.zip
     - name: Create github repo
-      run: planemo workflow_upload '<put path here>'
+      run: planemo workflow_upload ${{ matrix.workflow }}
       env:
         GITHUB_TOKEN: ${{ secrets.IWC_WORKFLOWS_BOT_TOKEN }}
