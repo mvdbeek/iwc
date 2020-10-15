@@ -1,3 +1,7 @@
+0.1.4
+-----
+Bump version
+
 0.1.3
 -----
 Add readme
