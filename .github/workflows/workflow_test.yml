@@ -49,6 +49,8 @@ jobs:
     - name: Setup cmvfs
       run: ./.scripts/setup_cvmfs.sh
     - run: planemo test --galaxy_source https://github.com/mvdbeek/galaxy --galaxy_branch "$GALAXY_RELEASE"  --database_connection postgresql://postgres:postgres@localhost:5432/galaxy --no_conda_auto_init --no_dependency_resolution --biocontainers --shed_tool_conf /cvmfs/main.galaxyproject.org/config/shed_tool_conf.xml --no_shed_install --tool_data_table /cvmfs/data.galaxyproject.org/byhand/location/tool_data_table_conf.xml --tool_data_table /cvmfs/data.galaxyproject.org/managed/location/tool_data_table_conf.xml --docker_extra_volume /cvmfs ${{ matrix.workflow }} || true
+    - name: Setup tmate session
+      uses: mxschmitt/action-tmate@v3
     - name: Copy artifacts into place
       run: |
         mkdir upload
