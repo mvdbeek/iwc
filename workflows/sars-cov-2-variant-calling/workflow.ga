@@ -2,6 +2,7 @@
   "a_galaxy_workflow": "true",
   "annotation": "Downloads reads from SRA and runs SE and PE COVID-19 variation workflows",
   "format-version": "0.1",
+  "release": "0.1.2",
   "name": "Download and SE+PE Illumina Covid Variation Workflow",
   "steps": {
     "0": {
