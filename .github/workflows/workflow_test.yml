@@ -87,4 +87,4 @@ jobs:
     - name: Create github repo
       run: planemo workflow_upload '<put path here>'
       env:
-        GITHUB_TOKEN: ${{  IWC_WORKFLOWS_BOT_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.IWC_WORKFLOWS_BOT_TOKEN }}
