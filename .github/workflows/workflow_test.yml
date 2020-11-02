@@ -50,7 +50,7 @@ jobs:
     - uses: mvdbeek/planemo-discover-action@workflow_enhancements
       id: discover-repositories
       with:
-        planemo-version: https://github.com/mvdbeek/planemo/archive/ci_find_workflows.zip
+        planemo-version: https://github.com/mvdbeek/planemo/archive/allow_testing_dir_of_workflows.zip
         create-cache: ${{ steps.cache-pip.outputs.cache-hit != 'true' || steps.cache-planemo.outputs.cache-hit != 'true' }}
         galaxy-branch: ${{ env.GALAXY_RELEASE }}
         galaxy-source: ${{ env.GALAXY_REPO }}
@@ -84,7 +84,7 @@ jobs:
     - uses: mvdbeek/planemo-discover-action@workflow_enhancements
       id: discover-repositories
       with:
-         planemo-version: https://github.com/mvdbeek/planemo/archive/ci_find_workflows.zip
+         planemo-version: https://github.com/mvdbeek/planemo/archive/allow_testing_dir_of_workflows.zip
          changed-repositories: ${{ needs.setup.outputs.changed-repositories }}
          lint-workflows: true
 
@@ -132,7 +132,7 @@ jobs:
     - run: ./.scripts/setup_cvmfs.sh
     - uses: mvdbeek/planemo-discover-action@workflow_enhancements
       with:
-         planemo-version: https://github.com/mvdbeek/planemo/archive/ci_find_workflows.zip
+         planemo-version: https://github.com/mvdbeek/planemo/archive/allow_testing_dir_of_workflows.zip
          changed-repositories: ${{ needs.setup.outputs.changed-repositories }}
          test-workflows: true
          combine-outputs: true
@@ -174,7 +174,7 @@ jobs:
       run: sudo apt-get install jq
     - uses: mvdbeek/planemo-discover-action@workflow_enhancements
       with:
-         planemo-version: https://github.com/mvdbeek/planemo/archive/ci_find_workflows.zip
+         planemo-version: https://github.com/mvdbeek/planemo/archive/allow_testing_dir_of_workflows.zip
          changed-repositories: ${{ needs.setup.outputs.changed-repositories }}
          combine-outputs: true
          html-report: true
@@ -214,7 +214,7 @@ jobs:
     - name: Update or create repositories in github namespace
       uses: mvdbeek/planemo-discover-action@master
       with:
-         planemo-version: https://github.com/mvdbeek/planemo/archive/ci_find_workflows.zip
+         planemo-version: https://github.com/mvdbeek/planemo/archive/allow_testing_dir_of_workflows.zip
          changed-repositories: ${{ needs.setup.outputs.changed-repositories }}
          workflow-upload: true
          workflow-namespace: iwc-workflows
