@@ -212,7 +212,7 @@ jobs:
         path: ~/.cache/pip
         key: pip_cache_py_${{ matrix.python-version }}_gxy_{{ needs.setup.outputs.galaxy-commit }}
     - name: Update or create repositories in github namespace
-      uses: mvdbeek/planemo-discover-action@master
+      uses: mvdbeek/planemo-discover-action@workflow_enhancements
       with:
          planemo-version: https://github.com/mvdbeek/planemo/archive/allow_testing_dir_of_workflows.zip
          changed-repositories: ${{ needs.setup.outputs.changed-repositories }}
