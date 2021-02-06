@@ -12,6 +12,7 @@ jobs:
       galaxy-head-sha: ${{ steps.get-galaxy-sha.outputs.galaxy-head-sha }}
       repository-list: ${{ steps.discover.outputs.repository-list }}
       chunk-count: ${{ steps.discover.outputs.chunk-count }}
+      chunk-list: ${{ steps.discover.outputs.chunk-list }}
     strategy:
       matrix:
         python-version: ['3.7']
@@ -102,7 +103,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        chunk: ${{ fromJson(needs.setup.outputs.repository-list) }}
+        chunk: ${{ fromJson(needs.setup.outputs.chunk-list) }}
         python-version: ['3.7']
     services:
       postgres:
