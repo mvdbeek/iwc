@@ -1,19 +1,20 @@
 name: Galaxy Workflow Tests for push and PR
 on: [push, pull_request]
 env:
-  GALAXY_REPO: https://github.com/galaxyproject/galaxy
-  GALAXY_RELEASE: release_20.09
+  GALAXY_FORK: galaxyproject
+  GALAXY_BRANCH: master
+  MAX_CHUNKS: 4
 jobs:
   setup:
-    # Shared 100% with tool testing setup
     name: Setup cache and determine changed repositories
     runs-on: ubuntu-latest
+    outputs:
+      galaxy-head-sha: ${{ steps.get-galaxy-sha.outputs.galaxy-head-sha }}
+      repository-list: ${{ steps.discover.outputs.repository-list }}
+      chunk-count: ${{ steps.discover.outputs.chunk-count }}
     strategy:
       matrix:
-        python-version: [3.7]
-    outputs:
-      galaxy-commit: ${{ steps.galaxy-commit.outputs.galaxy-commit }}
-      changed-repositories: ${{ steps.discover-repositories.outputs.changed-repositories }}
+        python-version: ['3.7']
     steps:
     - name: Print github context properties
       run: |
@@ -24,51 +25,54 @@ jobs:
         echo 'base_ref: ${{ github.base_ref }}'
         echo 'event.before: ${{ github.event.before }}'
         echo 'event.after: ${{ github.event.after }}'
+    - name: Determine latest commit in the Galaxy repo
+      id: get-galaxy-sha
+      run: echo "::set-output name=galaxy-head-sha::$(git ls-remote https://github.com/${{ env.GALAXY_FORK }}/galaxy refs/heads/${{ env.GALAXY_BRANCH }} | cut -f1)"
     - uses: actions/setup-python@v1
       with:
         python-version: ${{ matrix.python-version }}
-    - name: Determine latest galaxy commit
-      run: echo "GALAXY_HEAD_SHA=$(git ls-remote ${{ env.GALAXY_REPO }} refs/heads/${{ env.GALAXY_RELEASE }} | cut -f1)" >> $GITHUB_ENV
-    - name: Set galaxy head commit
-      id: galaxy-commit
-      run: echo "::set-output name=galaxy-commit::$GALAXY_HEAD_SHA"
     - name: Cache .cache/pip
       uses: actions/cache@v2
       id: cache-pip
       with:
         path: ~/.cache/pip
-        key: pip_cache_py_${{ matrix.python-version }}_gxy_$GALAXY_HEAD_SHA
+        key: pip_cache_py_${{ matrix.python-version }}_gxy_${{ steps.get-galaxy-sha.outputs.galaxy-head-sha }}
     - name: Cache .planemo
       uses: actions/cache@v2
       id: cache-planemo
       with:
         path: ~/.planemo
-        key: planemo_cache_py_${{ matrix.python-version }}_gxy_$GALAXY_HEAD_SHA
+        key: planemo_cache_py_${{ matrix.python-version }}_gxy_${{ steps.get-galaxy-sha.outputs.galaxy-head-sha }}
+    # Install the `wheel` package so that when installing other packages which
+    # are not available as wheels, pip will build a wheel for them, which can be cached.
+    - name: Install wheel
+      run: pip install wheel
     - uses: actions/checkout@v2
       with:
         fetch-depth: 0
-    - uses: mvdbeek/planemo-discover-action@workflow_enhancements
-      id: discover-repositories
+    - name: Fake a Planemo run to update cache and determine commit range, repositories, and chunks
+      uses: galaxyproject/planemo-ci-action@v1
+      id: discover
       with:
-        planemo-version: https://github.com/mvdbeek/planemo/archive/allow_testing_dir_of_workflows.zip
+        workflows: true
+        # TODO remove planemo-version
+        planemo-version: https://github.com/galaxyproject/planemo/archive/18a41d3a67a0df5b816c8b5ebb5e94d292dd9481.zip
         create-cache: ${{ steps.cache-pip.outputs.cache-hit != 'true' || steps.cache-planemo.outputs.cache-hit != 'true' }}
-        galaxy-branch: ${{ env.GALAXY_RELEASE }}
-        galaxy-source: ${{ env.GALAXY_REPO }}
+        galaxy-fork: ${{ env.GALAXY_FORK }}
+        galaxy-branch: ${{ env.GALAXY_BRANCH }}
+        max-chunks: ${{ env.MAX_CHUNKS }}
+        python-version: ${{ matrix.python-version }}
 
   # Planemo lint the changed repositories
   lint:
-    # Only difference with tool linting step is `lint-workflow`
     name: Lint workflows
     needs: setup
-    if: needs.setup.outputs.changed-repositories != ''
+    if: needs.setup.outputs.repository-list != ''
     runs-on: ubuntu-latest
     strategy:
-      fail-fast: false
       matrix:
-        python-version: [3.7]
+        python-version: ['3.7']
     steps:
-    # checkout the repository
-    # and use it as the current working directory
     - uses: actions/checkout@v2
       with:
         fetch-depth: 1
@@ -80,25 +84,26 @@ jobs:
       id: cache-pip
       with:
         path: ~/.cache/pip
-        key: pip_cache_py_${{ matrix.python-version }}_gxy_${{ needs.setup.outputs.galaxy-commit }}
-    - uses: mvdbeek/planemo-discover-action@workflow_enhancements
-      id: discover-repositories
+        key: pip_cache_py_${{ matrix.python-version }}_gxy_${{ needs.setup.outputs.galaxy-head-sha }}
+    - name: Install wheel
+      run: pip install wheel
+    - name: Planemo lint workflows
+      uses: galaxyproject/planemo-ci-action@v1
       with:
-         planemo-version: https://github.com/mvdbeek/planemo/archive/allow_testing_dir_of_workflows.zip
-         changed-repositories: ${{ needs.setup.outputs.changed-repositories }}
-         lint-workflows: true
+        mode: lint
+        workflows: true
+        repository-list: "${{ needs.setup.outputs.repository-list }}"
 
   test:
     name: Test workflows
-    # This job runs on Linux
     runs-on: ubuntu-latest
     needs: setup
-    if: needs.setup.outputs.changed-repositories != ''
+    if: needs.setup.outputs.repository-list != ''
     strategy:
       fail-fast: false
       matrix:
-        chunk: [0, 1, 2, 3]
-        python-version: [3.7]
+        chunk: ${{ fromJson(needs.setup.outputs.repository-list) }}
+        python-version: ['3.7']
     services:
       postgres:
         image: postgres:11
@@ -109,8 +114,6 @@ jobs:
         ports:
           - 5432:5432
     steps:
-    # checkout the repository
-    # and use it as the current working directory
     - uses: actions/checkout@v2
       with:
         fetch-depth: 1
@@ -122,40 +125,33 @@ jobs:
       id: cache-pip
       with:
         path: ~/.cache/pip
-        key: pip_cache_py_${{ matrix.python-version }}_gxy_${{ needs.setup.outputs.galaxy-commit }}
-    - name: Cache .planemo
-      uses: actions/cache@v2
-      id: cache-planemo
+        key: pip_cache_py_${{ matrix.python-version }}_gxy_${{ needs.setup.outputs.galaxy-head-sha }}
+    - name: Planemo test workflows
+      uses: galaxyproject/planemo-ci-action@v1
+      id: test-workflows
       with:
-        path: ~/.planemo
-        key: planemo_cache_py_${{ matrix.python-version }}_gxy_${{ needs.setup.outputs.galaxy-commit }}
-    - run: ./.scripts/setup_cvmfs.sh
-    - uses: mvdbeek/planemo-discover-action@workflow_enhancements
-      with:
-         planemo-version: https://github.com/mvdbeek/planemo/archive/allow_testing_dir_of_workflows.zip
-         changed-repositories: ${{ needs.setup.outputs.changed-repositories }}
-         test-workflows: true
-         combine-outputs: true
-         chunk-count: 4
-         chunk: ${{ matrix.chunk}}
-    - uses: actions/upload-artifact@v2.0.1
+        mode: test
+        workflows: true
+        setup-cvmfs: true
+        # TODO remove planemo-version
+        planemo-version: https://github.com/galaxyproject/planemo/archive/18a41d3a67a0df5b816c8b5ebb5e94d292dd9481.zip
+        repository-list: ${{ needs.setup.outputs.repository-list }}
+        galaxy-fork: ${{ env.GALAXY_FORK }}
+        galaxy-branch: ${{ env.GALAXY_BRANCH }}
+        chunk: ${{ matrix.chunk }}
+        chunk-count: ${{ needs.setup.outputs.chunk-count }}
+    - uses: actions/upload-artifact@v2
       with:
         name: 'Workflow test output ${{ matrix.chunk }}'
         path: upload
 
-  # - combine the results of the test chunks (which will never fail due
-  #   to `|| true`) and create a global test report as json and html which
-  #   is provided as artifact
-  # - check if any tool test actually failed (by lookup in the combined json)
-  #   and fail this step if this is the case
   combine_outputs:
     # same as tool step
     name: Combine chunked test results
     needs: [setup, test]
     strategy:
       matrix:
-        python-version: [3.7]
-    # This job runs on Linux
+        python-version: ['3.7']
     runs-on: ubuntu-latest
     steps:
     - uses: actions/download-artifact@v2
@@ -169,25 +165,19 @@ jobs:
       id: cache-pip
       with:
         path: ~/.cache/pip
-        key: pip_cache_py_${{ matrix.python-version }}_gxy_{{ needs.setup.outputs.galaxy-commit }}
-    - name: Install jq
-      run: sudo apt-get install jq
-    - uses: mvdbeek/planemo-discover-action@workflow_enhancements
+        key: pip_cache_py_${{ matrix.python-version }}_gxy_{{ needs.setup.outputs.galaxy-head-sha }}
+    - name: Combine outputs
+      uses: galaxyproject/planemo-ci-action@v1
+      id: combine
       with:
-         planemo-version: https://github.com/mvdbeek/planemo/archive/allow_testing_dir_of_workflows.zip
-         changed-repositories: ${{ needs.setup.outputs.changed-repositories }}
-         combine-outputs: true
-         html-report: true
+        mode: combine
+        html-report: true
     - uses: actions/upload-artifact@v2.0.1
       with:
         name: 'All tool test results'
         path: upload
-    - name: Check status of combined status
-      run: |
-        if jq '.["tests"][]["data"]["status"]' upload/test_output.json | grep -v "success"; then
-            echo "Unsuccessful tests found, inspect the 'All workflow test results' artifact for details."
-            exit 1
-        fi
+    - name: Check statistics
+      run: if ! grep -q "2\s\+success" <<<$(echo ${{ steps.combine.outputs.statistics }}); then echo "wrong statistics"; exit 1; fi
 
   # deploy workflows to organization
   deploy:
@@ -195,7 +185,7 @@ jobs:
     needs: [setup,test,combine_outputs]
     strategy:
       matrix:
-        python-version: [3.7]
+        python-version: ['3.7']
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master' && github.repository_owner == 'mvdbeek'
     steps:
@@ -210,12 +200,12 @@ jobs:
       id: cache-pip
       with:
         path: ~/.cache/pip
-        key: pip_cache_py_${{ matrix.python-version }}_gxy_{{ needs.setup.outputs.galaxy-commit }}
+        key: pip_cache_py_${{ matrix.python-version }}_gxy_{{ needs.setup.outputs.galaxy-head-sha }}
     - name: Update or create repositories in github namespace
-      uses: mvdbeek/planemo-discover-action@workflow_enhancements
+      uses: mvdbeek/planemo-ci-action@add_github_token_for_workflow_deployment
       with:
-         planemo-version: https://github.com/mvdbeek/planemo/archive/allow_testing_dir_of_workflows.zip
-         changed-repositories: ${{ needs.setup.outputs.changed-repositories }}
-         workflow-upload: true
+         mode: deploy
+         repository-list: ${{ needs.setup.outputs.repository-list }}
+         workflows: true
          workflow-namespace: iwc-workflows
          github-token: ${{ secrets.IWC_WORKFLOWS_BOT_TOKEN }}
