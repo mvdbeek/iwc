@@ -177,8 +177,11 @@ jobs:
       with:
         name: 'All tool test results'
         path: upload
-    - name: Check statistics
-      run: if ! grep -q "2\s\+success" <<<$(echo ${{ steps.combine.outputs.statistics }}); then echo "wrong statistics"; exit 1; fi
+    - name: Check outputs
+      uses: galaxyproject/planemo-ci-action@v1
+      id: check
+      with:
+        mode: check
 
   # deploy workflows to organization
   deploy:
