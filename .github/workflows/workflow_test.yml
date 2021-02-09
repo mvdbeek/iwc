@@ -3,6 +3,7 @@ on: [push, pull_request]
 env:
   GALAXY_FORK: galaxyproject
   GALAXY_BRANCH: master
+  GITHUB_USER: iwc-workflows
   MAX_CHUNKS: 4
 jobs:
 #   setup:
@@ -207,13 +208,16 @@ jobs:
         key: pip_cache_py_${{ matrix.python-version }}_gxy_{{ needs.setup.outputs.galaxy-head-sha }}
     - name: Set git user
       run: |
-        git config --global user.email "iwc-workflows@galaxyproject.org"
-        git config --global user.name "iwc-workflows"
+        git config --global user.email "$GITHUB_USER@galaxyproject.org"
+        git config --global user.name "$GITHUB_USER"
+    - uses: fusion-engineering/setup-git-credentials@v2
+      with:
+        credentials: 'https://${{env.GITHUB_USER}}:${{secrets.IWC_WORKFLOWS_BOT_TOKEN}}@github.com/'
     - name: Update or create repositories in github namespace
       uses: galaxyproject/planemo-ci-action@main
       with:
          mode: deploy
          repository-list: workflows/sars-cov-2-variant-calling
          workflows: true
-         workflow-namespace: iwc-workflows
+         workflow-namespace: ${{ env.GITHUB_USER }}
          github-token: ${{ secrets.IWC_WORKFLOWS_BOT_TOKEN }}
