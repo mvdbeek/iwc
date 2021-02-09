@@ -212,11 +212,7 @@ jobs:
         git config --global user.name "$GITHUB_USER"
     - uses: fusion-engineering/setup-git-credentials@v2
       with:
-        credentials: 'https://${ {env.GITHUB_USER }}:${{ secrets.IWC_WORKFLOWS_BOT_TOKEN }}@github.com/'
-    - name: Setup tmate session
-      uses: mxschmitt/action-tmate@v3
-      with:
-        limit-access-to-actor: true
+        credentials: 'https://${{ env.GITHUB_USER }}:${{ secrets.IWC_WORKFLOWS_BOT_TOKEN }}@github.com/'
     - name: Update or create repositories in github namespace
       uses: galaxyproject/planemo-ci-action@main
       with:
