@@ -135,7 +135,7 @@ jobs:
         workflows: true
         setup-cvmfs: true
         # TODO remove planemo-version
-        planemo-version: https://github.com/galaxyproject/planemo/archive/18a41d3a67a0df5b816c8b5ebb5e94d292dd9481.zip
+        planemo-version: https://github.com/mvdbeek/planemo/archive/allow_testing_dir_of_workflows.zip
         repository-list: ${{ needs.setup.outputs.repository-list }}
         galaxy-fork: ${{ env.GALAXY_FORK }}
         galaxy-branch: ${{ env.GALAXY_BRANCH }}
@@ -177,8 +177,11 @@ jobs:
       with:
         name: 'All tool test results'
         path: upload
-    - name: Check statistics
-      run: if ! grep -q "2\s\+success" <<<$(echo ${{ steps.combine.outputs.statistics }}); then echo "wrong statistics"; exit 1; fi
+    - name: Check outputs
+      uses: galaxyproject/planemo-ci-action@v1
+      id: check
+      with:
+        mode: check
 
   # deploy workflows to organization
   deploy:
@@ -203,7 +206,7 @@ jobs:
         path: ~/.cache/pip
         key: pip_cache_py_${{ matrix.python-version }}_gxy_{{ needs.setup.outputs.galaxy-head-sha }}
     - name: Update or create repositories in github namespace
-      uses: mvdbeek/planemo-ci-action@add_github_token_for_workflow_deployment
+      uses: galaxyproject/planemo-ci-action@main
       with:
          mode: deploy
          repository-list: ${{ needs.setup.outputs.repository-list }}
