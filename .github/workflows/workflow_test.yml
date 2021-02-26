@@ -1,8 +1,8 @@
 name: Galaxy Workflow Tests for push and PR
 on: [push, pull_request]
 env:
-  GALAXY_FORK: galaxyproject
-  GALAXY_BRANCH: master
+  GALAXY_FORK: mvdbeek
+  GALAXY_BRANCH: fix_workflow_tests
   GITHUB_USER: iwc-workflows-bot
   MAX_CHUNKS: 4
 jobs:
