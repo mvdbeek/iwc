@@ -1,0 +1,129 @@
+<!doctype html>
+
+<html>
+
+<head>
+    <title>Galaxy Workflow</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.9.4/cytoscape.min.js"></script>
+    <script src="https://unpkg.com/popper.js@1.14.7/dist/umd/popper.js"></script>
+    <script src="https://unpkg.com/tippy.js@4.0.1/umd/index.all.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/tippy.js@4.0.1/index.css" />
+    <script src="https://cdn.jsdelivr.net/npm/cytoscape-popper@1.0.4/cytoscape-popper.min.js"></script>
+    <script>
+document.addEventListener("DOMContentLoaded", function() {
+    var cy = cytoscape({
+        container: document.getElementById('cy'),
+        elements: [{"group": "nodes", "data": {"id": "Run accessions", "label": "Run accessions", "doc": "Text file containing run accessions (starting with SRR, ERR or DRR), one per line.", "tool_id": null, "step_type": "data", "repo_link": null}, "classes": ["type_data", "input"], "position": {"x": 387, "y": 573}}, {"group": "nodes", "data": {"id": "Split accessions to collection", "label": "Split accessions to collection", "doc": null, "tool_id": "toolshed.g2.bx.psu.edu/repos/bgruening/split_file_to_collection/split_file_to_collection/0.5.0", "step_type": "tool", "repo_link": "https://toolshed.g2.bx.psu.edu/view/bgruening/split_file_to_collection/6cbe2f30c2d7"}, "classes": ["type_tool", "runnable"], "position": {"x": 533, "y": 719}}, {"group": "edges", "data": {"id": "Split accessions to collection__to__Run accessions", "source": "Run accessions", "target": "Split accessions to collection", "input": "split_parms|input", "output": null}}, {"group": "nodes", "data": {"id": "to parameter", "label": "to parameter", "doc": null, "tool_id": "param_value_from_file", "step_type": "tool", "repo_link": null}, "classes": ["type_tool", "runnable"], "position": {"x": 725, "y": 546}}, {"group": "edges", "data": {"id": "to parameter__to__Split accessions to collection", "source": "Split accessions to collection", "target": "to parameter", "input": "input1", "output": "list_output_txt"}}, {"group": "nodes", "data": {"id": "fasterq-dump", "label": "fasterq-dump", "doc": null, "tool_id": "toolshed.g2.bx.psu.edu/repos/iuc/sra_tools/fasterq_dump/2.11.0+galaxy0", "step_type": "tool", "repo_link": "https://toolshed.g2.bx.psu.edu/view/iuc/sra_tools/69ebb7f46e45"}, "classes": ["type_tool", "runnable"], "position": {"x": 992, "y": 647}}, {"group": "edges", "data": {"id": "fasterq-dump__to__to parameter", "source": "to parameter", "target": "fasterq-dump", "input": "input|accession", "output": "text_param"}}, {"group": "nodes", "data": {"id": "flatten paired output", "label": "flatten paired output", "doc": null, "tool_id": "__APPLY_RULES__", "step_type": "tool", "repo_link": null}, "classes": ["type_tool", "runnable"], "position": {"x": 1319, "y": 656}}, {"group": "edges", "data": {"id": "flatten paired output__to__fasterq-dump", "source": "fasterq-dump", "target": "flatten paired output", "input": "input", "output": "list_paired"}}, {"group": "nodes", "data": {"id": "flatten single end output", "label": "flatten single end output", "doc": null, "tool_id": "__APPLY_RULES__", "step_type": "tool", "repo_link": null}, "classes": ["type_tool", "runnable"], "position": {"x": 1326, "y": 799}}, {"group": "edges", "data": {"id": "flatten single end output__to__fasterq-dump", "source": "fasterq-dump", "target": "flatten single end output", "input": "input", "output": "output_collection"}}],
+        layout: {
+            name: 'preset'
+        },
+        // so we can see the ids
+        style: [
+            {
+                selector: 'node',
+                style: {
+                    'label': 'data(label)'
+                }
+            },
+            {
+                selector: 'edge',
+                style: {
+                    'curve-style': 'bezier',
+                    'target-arrow-shape': 'vee',
+                    'arrow-scale': 2
+                }
+            },
+            {
+                selector: ".input",
+                style: {
+                    shape: 'diamond',
+                    'background-color': '#d0bb46'
+                }
+            },
+            {
+                selector: ".runnable",
+                style: {
+                    shape: 'round-rectangle',
+                    'background-color': '#2c3143'
+                }
+            }
+        ]
+      });
+
+  function makePopper(ele) {
+    let ref = ele.popperRef(); // used only for positioning
+
+    ele.tippy = new tippy(ref, { // tippy options:
+      content: function() {
+        let content = document.createElement('div');
+
+        let innerHTML = '';
+        if(ele.isNode()) {
+            let stepType = ele.data("step_type");
+            innerHTML +=  "<p><i>Step Type:</i> " + stepType + "</p>";
+            let toolId = ele.data("tool_id");
+            if (toolId) {
+                innerHTML +=  "<p><i>ToolID:</i> " + toolId + "</p>";
+            }
+            let repoLink = ele.data("repo_link");
+            if (repoLink) {
+                innerHTML += "<a href=" + repoLink + '">Visit Tool Shed Repository</a>';
+            }
+            let doc = ele.data('doc');
+            if (doc) {
+                innerHTML += "<p>" + doc + "</p>";
+            }
+        } else {
+            let output = ele.data("output");
+            let input = ele.data("input");
+            if(output) {
+                innerHTML += "Output named " + output + " connects to " + input;
+            } else {
+                innerHTML += "Connected to input " + input;
+            }
+        }
+        content.innerHTML = innerHTML;
+
+        return content;
+      },
+      delay: [0,1000],
+      interactive: true,
+      placement: 'bottom',
+      trigger: 'manual' // probably want manual mode
+    });
+  }
+
+ cy.ready(function() {
+    cy.elements().forEach(function(ele) {
+      makePopper(ele);
+    });
+  });
+
+  cy.elements().unbind('mouseover');
+  cy.elements().bind('mouseover', function(event) { event.target.tippy.show(); });
+
+  cy.elements().unbind('mouseout');
+  cy.elements().bind('mouseout', function(event) { event.target.tippy.hide(); });
+  // document.querySelector('#cypng').setAttribute('src', cy.png());
+});
+
+    </script>
+</head>
+
+<style>
+    #cy {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        top: 0px;
+        left: 0px;
+    }
+    a { 
+        color: #d0bb46
+    }
+</style>
+
+<body>
+    <div id="cy"></div>
+</body>
+</html>
