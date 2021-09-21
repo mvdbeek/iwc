@@ -149,8 +149,8 @@ jobs:
         workflows: true
         setup-cvmfs: true
         repository-list: ${{ needs.setup.outputs.repository-list }}
-        galaxy-fork: ${{ env.GALAXY_FORK }}
-        galaxy-branch: ${{ env.GALAXY_BRANCH }}
+        galaxy-fork: ${{ needs.setup.outputs.fork }}
+        galaxy-branch: ${{ needs.setup.outputs.branch }}
         chunk: ${{ matrix.chunk }}
         chunk-count: ${{ needs.setup.outputs.chunk-count }}
     - uses: actions/upload-artifact@v2
