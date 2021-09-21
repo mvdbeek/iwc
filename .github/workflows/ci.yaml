@@ -1,0 +1,76 @@
+name: Weekly global Workflow Linting and Tests
+on:
+  schedule:
+    # Run at midnight every monday
+    - cron: '0 0 * * 1'
+  repository_dispatch:
+    types: [run-all-tool-tests-command]
+env:
+  GALAXY_FORK: galaxyproject
+  GALAXY_BRANCH: release_21.05
+  MAX_CHUNKS: 40
+jobs:
+  setup:
+    name: Setup cache and determine changed repositories
+    # if: github.repository_owner == 'galaxyproject'
+    runs-on: ubuntu-latest
+    outputs:
+      galaxy-head-sha: ${{ steps.get-galaxy-sha.outputs.galaxy-head-sha }}
+      fork: ${{ steps.get-fork-branch.outputs.fork }}
+      branch: ${{ steps.get-fork-branch.outputs.branch }}
+      repository-list: ${{ steps.discover.outputs.repository-list }}
+      chunk-count: ${{ steps.discover.outputs.chunk-count }}
+      chunk-list: ${{ steps.discover.outputs.chunk-list }}
+    strategy:
+      matrix:
+        python-version: ['3.7']
+    steps:
+    - name: Add reaction
+      if: ${{ github.event.client_payload.slash_command.command == 'run-all-tool-tests' }}
+      uses: peter-evans/create-or-update-comment@v1
+      with:
+        token: ${{ secrets.PAT }}
+        repository: ${{ github.event.client_payload.github.payload.repository.full_name }}
+        comment-id: ${{ github.event.client_payload.github.payload.comment.id }}
+        reaction-type: hooray
+    - name: Set galaxy fork and branch
+      id: get-fork-branch
+      run: |
+        TMP="${{ github.event.client_payload.slash_command.args.named.fork }}"
+        echo "::set-output name=fork::${TMP:-$GALAXY_FORK}"
+        TMP="${{ github.event.client_payload.slash_command.args.named.branch }}"
+        echo "::set-output name=branch::${TMP:-$GALAXY_BRANCH}"
+    - name: Determine latest commit in the Galaxy repo
+      id: get-galaxy-sha
+      run: echo "::set-output name=galaxy-head-sha::$(git ls-remote https://github.com/${{ steps.get-fork-branch.outputs.fork }}/galaxy refs/heads/${{ steps.get-fork-branch.outputs.branch }} | cut -f1)"
+    - uses: actions/setup-python@v1
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Cache .cache/pip
+      uses: actions/cache@v2
+      id: cache-pip
+      with:
+        path: ~/.cache/pip
+        key: pip_cache_py_${{ matrix.python-version }}_gxy_${{ steps.get-galaxy-sha.outputs.galaxy-head-sha }}
+    # Install the `wheel` package so that when installing other packages which
+    # are not available as wheels, pip will build a wheel for them, which can be cached.
+    - name: Install wheel
+      run: pip install wheel
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 1
+    - name: Fake a Planemo run to update cache and determine commit range, repositories, and chunks
+      uses: galaxyproject/planemo-ci-action@v1
+      id: discover
+      with:
+        workflows: true
+        create-cache: ${{ steps.cache-pip.outputs.cache-hit != 'true' || steps.cache-planemo.outputs.cache-hit != 'true' }}
+        galaxy-fork: ${{ steps.get-fork-branch.outputs.fork }}
+        galaxy-branch: ${{ steps.get-fork-branch.outputs.branch }}
+        max-chunks: ${{ env.MAX_CHUNKS }}
+        python-version: ${{ matrix.python-version }}
+    - name: Show repository list
+      run: echo '${{ steps.discover.outputs.repository-list }}'
+    - name: Show chunks
+      run: |
+        echo 'Using ${{ steps.discover.outputs.chunk-count }} chunks (${{ steps.discover.outputs.chunk-list }})'
