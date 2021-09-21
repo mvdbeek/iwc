@@ -4,7 +4,7 @@ on:
     # Run at midnight every monday
     - cron: '0 0 * * 1'
   repository_dispatch:
-    types: [run-all-tool-tests-command]
+    types: [run-all-workflow-tests-command]
 env:
   GALAXY_FORK: galaxyproject
   GALAXY_BRANCH: release_21.05
@@ -26,7 +26,7 @@ jobs:
         python-version: ['3.7']
     steps:
     - name: Add reaction
-      if: ${{ github.event.client_payload.slash_command.command == 'run-all-tool-tests' }}
+      if: ${{ github.event.client_payload.slash_command.command == 'run-all-workflow-tests' }}
       uses: peter-evans/create-or-update-comment@v1
       with:
         token: ${{ secrets.PAT }}
