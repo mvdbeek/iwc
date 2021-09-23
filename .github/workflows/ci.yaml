@@ -189,7 +189,16 @@ jobs:
       id: combine
       with:
         mode: combine
-        html-report: true
+        markdown-report: true
+    - name: Read report
+      if: always()
+      id: report
+      run: |
+           body=$(cat tool_test_output.md)
+           body="${body//'%'/'%25'}"
+           body="${body//$'\n'/'%0A'}"
+           body="${body//$'\r'/'%0D'}"
+           echo "::set-output name=markdown::$body"
     - uses: actions/upload-artifact@v2
       with:
         name: 'All workflow test results'
@@ -210,6 +219,8 @@ jobs:
           Summary:
 
           ${{ steps.combine.outputs.statistics }}
+
+          ${{ steps.report.outputs.markdown }}
 
           [Find all workflow test results here][1]
 
