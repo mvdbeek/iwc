@@ -1,0 +1,11 @@
+- doc: Test outline for fake
+  job:
+    input fastq:
+      class: File
+      path: test-data/input fastq.fastqsanger
+      filetype: fastqsanger
+  outputs:
+    bowtie2 BAM:
+      assert:
+        has_size: 1568
+        delta: 100
