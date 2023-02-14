@@ -59,6 +59,7 @@ jobs:
       galaxy-fork: galaxyproject
       galaxy-branch: master
       check-outputs: false
+      planemo-version: https://github.com/mvdbeek/planemo/tree/improve_shed_install_for_workflows
 
   combine_outputs:
     # same as tool step
