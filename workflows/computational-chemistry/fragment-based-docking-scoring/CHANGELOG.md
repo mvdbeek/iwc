@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.1.5] 2023-02-22
+
+### Fixed
+- Update .dockstore.yml author metadata
+
+## [0.1.4] 2023-02-14
+
+### Fixed
+- Fix the changeset revisions for 2 tool shed repositories
+- Sync version of ``openbabel_compound_convert`` step to newest version
+
 ## [0.1.3] 2022-05-25
 
 ### Changed
