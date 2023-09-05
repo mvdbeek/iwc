@@ -10,3 +10,4 @@ workflows:
   - name: Marius van den Beek
     orcid: 0000-0002-9676-7032
   - name: IWC
+    url: https://github.com/galaxyproject/iwc
