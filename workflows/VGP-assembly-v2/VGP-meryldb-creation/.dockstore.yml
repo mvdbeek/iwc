@@ -8,4 +8,5 @@ workflows:
   - /meryldb-creation-tests.yml
   authors:
   - name: VGP
+    url: https://vertebrategenomeproject.org
   - name: Galaxy
