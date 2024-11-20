@@ -16,7 +16,7 @@
     ],
     "format-version": "0.1",
     "license": "MIT",
-    "name": "Parallel Accession Download",
+    "name": "Parallel Accession Download 2",
     "steps": {
         "0": {
             "annotation": "Text file containing run accessions (starting with SRR, ERR or DRR), one per line.",
