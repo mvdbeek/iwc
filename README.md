@@ -13,7 +13,7 @@ Workflows also contain important metadata, such as:
 
 - License
 - Author
-- Institutes
+- Institutes 123
 
 Additionally the IWC will collect further best practices, tips and tricks, FAQs and assist the community in designing high-quality Galaxy workflows.
 
