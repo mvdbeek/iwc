@@ -1,77 +1,117 @@
-- doc: Test outline for GTN_Exemplar_002_TMA_workflow_Feb2025
+- doc: Test for TMA workflow
   job:
     markers.csv:
       class: File
-      location: https://zenodo.org/records/15001725/files/markers.csv
+      path: test-data/markers.csv
       filetype: csv
     PhenotypeWorkflow:
       class: File
-      location: https://zenodo.org/records/15001725/files/phenotypes.csv
+      path: test-data/phenotypes.csv
       filetype: csv
     Raw cycle images:
       class: Collection
       collection_type: list
       elements:
       - class: File
-        identifier: exemplar-001-cycle-07.ome.tiff
-        location: https://zenodo.org/records/15001725/files/exemplar-001-cycle-07.ome.tiff
+        identifier: exemplar-001-cycle-04
+        path: test-data/exemplar-001-cycle-04.ome.tiff
       - class: File
-        identifier: exemplar-001-cycle-08.ome.tiff
-        location: https://zenodo.org/records/15001725/files/exemplar-001-cycle-08.ome.tiff
+        identifier: exemplar-001-cycle-05
+        path: test-data/exemplar-001-cycle-05.ome.tiff
+      - class: File
+        identifier: exemplar-001-cycle-06
+        path: test-data/exemplar-001-cycle-06.ome.tiff
+      - class: File
+        identifier: exemplar-001-cycle-07
+        path: test-data/exemplar-001-cycle-07.ome.tiff
+      - class: File
+        identifier: exemplar-001-cycle-08
+        path: test-data/exemplar-001-cycle-08.ome.tiff
   outputs:
     Registered image:
-      path: test-data/Registered image.ome.tiff
+      has_size:
+        size: 6M
+        delta: 0.5M
+      has_image_channels:
+        channels: 1
     TMA dearray map:
-      path: test-data/TMA dearray map.tiff
+      has_image_channels:
+        channels: 1
     DFP images:
       element_tests:
-        exemplar-001-cycle-07.ome.tiff:
-          path: test-data/DFP images_exemplar-001-cycle-07.ome.tiff.tiff
-        exemplar-001-cycle-08.ome.tiff:
-          path: test-data/DFP images_exemplar-001-cycle-08.ome.tiff.tiff
+        exemplar-001-cycle-04:
+          has_image_channels:
+            channels: 1
+        exemplar-001-cycle-05:
+          has_image_channels:
+            channels: 1
+        exemplar-001-cycle-06:
+          has_image_channels:
+            channels: 1
+        exemplar-001-cycle-07:
+          has_image_channels:
+            channels: 1
+        exemplar-001-cycle-08:
+          has_image_channels:
+            channels: 1
     FFP images:
       element_tests:
-        exemplar-001-cycle-07.ome.tiff:
-          path: test-data/FFP images_exemplar-001-cycle-07.ome.tiff.tiff
-        exemplar-001-cycle-08.ome.tiff:
-          path: test-data/FFP images_exemplar-001-cycle-08.ome.tiff.tiff
+        exemplar-001-cycle-04:
+          has_image_channels:
+            channels: 1
+        exemplar-001-cycle-05:
+          has_image_channels:
+            channels: 1
+        exemplar-001-cycle-06:
+          has_image_channels:
+            channels: 1
+        exemplar-001-cycle-07:
+          has_image_channels:
+            channels: 1
+        exemplar-001-cycle-08:
+          has_image_channels:
+            channels: 1
     Dearray images:
       element_tests:
         '1':
-          path: test-data/Dearray images_1.tiff
+          has_image_channels:
+            channels: 1
     Dearray masks:
       element_tests:
         '1':
-          path: test-data/Dearray masks_1.tiff
+          has_image_channels:
+            channels: 1
     Nuclear mask:
       element_tests:
         '1':
-          path: test-data/Nuclear mask_1.tiff
+          has_image_channels:
+            channels: 1
     Converted image:
       element_tests:
         '1':
-          path: test-data/Converted image_1.ome.tiff
+          has_image_channels:
+            channels: 1
     Primary Mask Quantification:
       element_tests:
         '1':
-          path: test-data/Primary Mask Quantification_1.csv
+          has_image_channels:
+            channels: 1
     Renamed image:
       element_tests:
         '1':
-          path: test-data/Renamed image_1.ome.tiff
+          has_image_channels:
+            channels: 1
     Anndata feature table:
       element_tests:
         '1':
-          path: test-data/Anndata feature table_1.h5ad
+          has_h5_keys: obs/Area,obs/CellID,obs/Eccentricity,obs/Extent,obs/MajorAxisLength,obs/MinorAxisLength,obs/Orientation,obs/Solidity,obs/X_centroid,obs/Y_centroid,obs/imageid,obs/imageid/categories,obs/imageid/codes
     Phenotyped feature table:
       element_tests:
         '1':
-          path: test-data/Phenotyped feature table_1.h5ad
-    Vitessce dashboard:
+          has_h5_keys: obs/Area,obs/CellID,obs/Eccentricity,obs/Extent,obs/MajorAxisLength,obs/MinorAxisLength,obs/Orientation,obs/Solidity,obs/X_centroid,obs/Y_centroid,obs/imageid,obs/imageid/categories,obs/imageid/codes
+    Vitessce Dashboard Config:
       element_tests:
         '1':
-          path: test-data/Vitessce dashboard_1.html
-    Vitessce Dashobard Config:
-      element_tests:
-        '1':
-          path: test-data/Vitessce Dashobard Config_1.json
+          has_json_property_with_text:
+            property: version
+            text: "1.0.17"
