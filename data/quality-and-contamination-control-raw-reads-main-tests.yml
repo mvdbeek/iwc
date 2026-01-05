@@ -1,0 +1,46 @@
+- doc: Test outline for quality_and_contamination_control.ga
+  job:
+    Input sequence reads (forward):
+      class: File
+      filetype: fastqsanger.gz
+      location: https://zenodo.org/records/11484215/files/paired_r1.fastq.gz
+      path: https://zenodo.org/records/11484215/files/paired_r1.fastq.gz
+    Input sequence reads (reverse):
+      class: File
+      filetype: fastqsanger.gz
+      location: https://zenodo.org/records/11484215/files/paired_r2.fastq.gz
+      path: https://zenodo.org/records/11484215/files/paired_r2.fastq.gz
+    Taxonomy database for Kraken and Bracken: k2_minusb_20210517
+  outputs:
+    bracken_kraken_report:
+      asserts:
+        has_n_columns:
+          n: 6
+        has_text:
+          text: Enterococcus gallinarum
+    bracken_report_tsv:
+      asserts:
+        has_n_columns:
+          n: 7
+        has_text:
+          text: Escherichia coli
+    fastp_report_json:
+      asserts:
+        has_text:
+          text: read2_before_filtering
+    kraken_report:
+      asserts:
+        has_n_columns:
+          n: 5
+        has_text:
+          text: M07044:90:000000000-JRJWP:1:1119:23974:4461
+    kraken_report_tabular:
+      asserts:
+        has_n_columns:
+          n: 6
+        has_text:
+          text: Enterococcus avium
+    tooldistillator_summarize_control:
+      asserts:
+      - text: fastp_report
+        that: has_text

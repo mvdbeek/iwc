@@ -1,0 +1,38 @@
+- doc: Test download of single end accession
+  job:
+    Run accessions:
+      class: File
+      filetype: txt
+      hashes:
+      - hash_function: SHA-1
+        hash_value: 82f7d1a023352b8d99bdf262ccbc0c87723b754b
+      location: https://raw.githubusercontent.com/galaxyproject/iwc/main/workflows/data-fetching/parallel-accession-download/test-data/input_accession_single_end.txt
+  outputs:
+    Single End Reads:
+      element_tests:
+        SRR044777:
+          compare: contains
+          decompress: true
+          file: test-data/SRR044777_head.fastq
+- doc: Test download of single and paired end accession
+  job:
+    Run accessions:
+      class: File
+      filetype: txt
+      hashes:
+      - hash_function: SHA-1
+        hash_value: cc855f075b8473f89364415d7f30fada8182a40a
+      location: https://raw.githubusercontent.com/galaxyproject/iwc/main/workflows/data-fetching/parallel-accession-download/test-data/input_accession_paired_end.txt
+  outputs:
+    Paired End Reads:
+      element_tests:
+        SRR11953971:
+          elements:
+            forward:
+              compare: contains
+              decompress: true
+              file: test-data/SRR11953971_1_head.fastq
+            reverse:
+              compare: contains
+              decompress: true
+              file: test-data/SRR11953971_2_head.fastq
