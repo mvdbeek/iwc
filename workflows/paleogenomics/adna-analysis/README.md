@@ -7,10 +7,7 @@ The pipeline processes the sequencing-read input provided to the workflow togeth
 ## Required & Optional Inputs
 To run this workflow successfully, you need to provide the following input datasets and parameters:
 
-* **`Choose Read Type` :** Select whether your input is Single-End or Paired-End.
-* **`Input Single-end reads` :** Input single-end FASTQ reads (list collection) for the sample.
-* **`Input Paired-end Forward reads (R1)` :** Input paired-end forward FASTQ reads (list collection) for the sample.
-* **`Input Paired-end reverse reads (R2)` :** Input paired-end reverse FASTQ reads (list collection) for the sample.
+* **`Input FASTQ reads` :** Input FASTQ reads for the sample, as a list of paired or unpaired reads (a `list:paired_or_unpaired` collection). Each element of the list is either a pair of forward and reverse reads or a single unpaired dataset, so single-end and paired-end samples are given to the workflow the same way — and a single run may mix both. Galaxy routes each element down the appropriate trimming and mapping path automatically, so no read-type parameter is needed.
 * **`Reference genome` :** Reference genome sequence in FASTA format. This is essential for read mapping and variant calling.
 * **`Choose Mapper` :** Switch to select the alignment tool. Choose between BWA and Bowtie2.
 * **`HapMap chromosome X reference` :** Optional HapMap dataset used for X-chromosome contamination estimation in ANGSD (used only if provided).

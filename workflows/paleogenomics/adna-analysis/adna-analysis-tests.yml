@@ -1,14 +1,17 @@
 - doc: Test outline for adna-analysis.ga (Single-End, BWA, No BED, HapMap Present)
   job:
-    Choose Read Type: Single-End
-    Input Single-end reads:
+    Input FASTQ reads:
       class: Collection
-      collection_type: list
+      collection_type: list:paired_or_unpaired
       elements:
-      - class: File
+      - class: Collection
         identifier: NIST7035
-        location: https://zenodo.org/records/21222737/files/NIST7035_TAAGGCGA_L001_R1_001_10MB.fastq.gz
-        filetype: fastqsanger.gz
+        collection_type: paired_or_unpaired
+        elements:
+        - class: File
+          identifier: unpaired
+          location: https://zenodo.org/records/21222737/files/NIST7035_TAAGGCGA_L001_R1_001_10MB.fastq.gz
+          filetype: fastqsanger.gz
     Reference genome:
       class: File
       location: https://github.com/nf-core/test-datasets/raw/eager/reference/Human/hs37d5_chr21-MT.fa.gz
@@ -54,7 +57,7 @@
     mapDamage Visualisation:
       element_tests:
         NIST7035:
-          element_tests:
+          elements:
             dnacomp:
               asserts:
                 has_text:
@@ -66,11 +69,9 @@
             has_text:
               text: "freeBayes"
     ANGSD report of nuclear contamination estimation:
-      element_tests:
-        NIST7035:
-          asserts:
-            has_text:
-              text: "Method1_MOM_estimate"
+      asserts:
+        has_text:
+          text: "Method1_MOM_estimate"
     Bcftools variant calling summary statistics report:
       element_tests:
         NIST7035:
@@ -92,23 +93,22 @@
 
 - doc: Test outline for adna-analysis.ga (Paired-End, Bowtie2, BED Present, No HapMap)
   job:
-    Choose Read Type: Paired-End
-    Input Paired-end Forward reads (R1):
+    Input FASTQ reads:
       class: Collection
-      collection_type: list
+      collection_type: list:paired_or_unpaired
       elements:
-      - class: File
+      - class: Collection
         identifier: NIST7035
-        location: https://zenodo.org/records/21222737/files/NIST7035_TAAGGCGA_L001_R1_001_10MB.fastq.gz
-        filetype: fastqsanger.gz
-    Input Paired-end reverse reads (R2):
-      class: Collection
-      collection_type: list
-      elements:
-      - class: File
-        identifier: NIST7035
-        location: https://zenodo.org/records/21222737/files/NIST7035_TAAGGCGA_L001_R2_001_10MB.fastq.gz
-        filetype: fastqsanger.gz
+        collection_type: paired_or_unpaired
+        elements:
+        - class: File
+          identifier: forward
+          location: https://zenodo.org/records/21222737/files/NIST7035_TAAGGCGA_L001_R1_001_10MB.fastq.gz
+          filetype: fastqsanger.gz
+        - class: File
+          identifier: reverse
+          location: https://zenodo.org/records/21222737/files/NIST7035_TAAGGCGA_L001_R2_001_10MB.fastq.gz
+          filetype: fastqsanger.gz
     Reference genome:
       class: File
       location: https://github.com/nf-core/test-datasets/raw/eager/reference/Human/hs37d5_chr21-MT.fa.gz
@@ -154,7 +154,7 @@
     mapDamage Visualisation:
       element_tests:
         NIST7035:
-          element_tests:
+          elements:
             dnacomp:
               asserts:
                 has_text:
