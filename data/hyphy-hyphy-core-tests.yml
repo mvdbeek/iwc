@@ -1,0 +1,79 @@
+- doc: Test HyPhy Core produces HyPhy JSON collections
+  job:
+    reference Fasta:
+      class: File
+      filetype: fasta
+      location: https://raw.githubusercontent.com/galaxyproject/iwc/main/workflows/comparative_genomics/hyphy/test-data/denv1_genome.fasta
+    reference GTF:
+      class: File
+      filetype: gtf
+      location: https://raw.githubusercontent.com/galaxyproject/iwc/main/workflows/comparative_genomics/hyphy/test-data/denv1_ref.gtf
+    unaligned sequences:
+      class: Collection
+      collection_type: list
+      elements:
+      - class: File
+        filetype: fasta
+        identifier: AB178040.1|2002
+        location: https://raw.githubusercontent.com/galaxyproject/iwc/main/workflows/comparative_genomics/hyphy/test-data/unaligned_seqs/AB178040.1%7C2002.fasta
+      - class: File
+        filetype: fasta
+        identifier: AB195673.1|2003
+        location: https://raw.githubusercontent.com/galaxyproject/iwc/main/workflows/comparative_genomics/hyphy/test-data/unaligned_seqs/AB195673.1%7C2003.fasta
+      - class: File
+        filetype: fasta
+        identifier: AB204803.1|2004
+        location: https://raw.githubusercontent.com/galaxyproject/iwc/main/workflows/comparative_genomics/hyphy/test-data/unaligned_seqs/AB204803.1%7C2004.fasta
+      - class: File
+        filetype: fasta
+        identifier: AF298807.1|1998
+        location: https://raw.githubusercontent.com/galaxyproject/iwc/main/workflows/comparative_genomics/hyphy/test-data/unaligned_seqs/AF298807.1%7C1998.fasta
+      - class: File
+        filetype: fasta
+        identifier: AF298808.1|1998
+        location: https://raw.githubusercontent.com/galaxyproject/iwc/main/workflows/comparative_genomics/hyphy/test-data/unaligned_seqs/AF298808.1%7C1998.fasta
+  outputs:
+    busted_output:
+      class: Collection
+      element_tests:
+        capsid_protein_C:
+          asserts:
+            has_text:
+              text: '{'
+        membrane_glycoprotein_precursor_prM:
+          asserts:
+            has_text:
+              text: '{'
+    fel_output:
+      class: Collection
+      element_tests:
+        capsid_protein_C:
+          asserts:
+            has_text:
+              text: '{'
+        membrane_glycoprotein_precursor_prM:
+          asserts:
+            has_text:
+              text: '{'
+    meme_output:
+      class: Collection
+      element_tests:
+        capsid_protein_C:
+          asserts:
+            has_text:
+              text: '{'
+        membrane_glycoprotein_precursor_prM:
+          asserts:
+            has_text:
+              text: '{'
+    prime_output:
+      class: Collection
+      element_tests:
+        capsid_protein_C:
+          asserts:
+            has_text:
+              text: '{'
+        membrane_glycoprotein_precursor_prM:
+          asserts:
+            has_text:
+              text: '{'
