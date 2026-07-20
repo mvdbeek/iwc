@@ -76,3 +76,5 @@
         text: "ABRicate virulence"
       - that: has_text
         text: "Staramr detailed summary"
+
+# CI trigger: diagnostic run for undeployed release (do not merge)

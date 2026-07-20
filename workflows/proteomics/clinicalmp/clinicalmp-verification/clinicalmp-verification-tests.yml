@@ -68,3 +68,5 @@
       asserts:
         has_text:
           text: ">tr"
+
+# CI trigger: diagnostic run for undeployed release (do not merge)
